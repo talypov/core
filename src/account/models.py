@@ -5,25 +5,64 @@ from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser)
 
 
-def get_random_number():
-    number = random.randrange(0, 100)
-    return number
-
+# class UserManager(BaseUserManager):
+#     def create_user(self, email, number, birthday=None, password=None):
+#         """
+#         Creates and saves a User with the given email and password.
+#         """
+#         if not email:
+#             raise ValueError('Users must have an email address')
+#
+#         user = self.model(
+#             number,
+#             birthday=birthday,
+#             email=self.normalize_email(email),
+#         )
+#
+#         user.set_password(password)
+#         user.save(using=self._db)
+#         return user
+#
+#     def create_staffuser(self, email, password, birthday, number):
+#         """
+#         Creates and saves a staff user with the given email and password.
+#         """
+#         user = self.create_user(
+#             email,
+#             birthday,
+#             number,
+#             password=password,
+#         )
+#         user.staff = True
+#         user.save(using=self._db)
+#
+#         return user
+#
+#     def create_superuser(self, email, password, number, birthday=None):
+#         """
+#         Creates and saves a superuser with the given email and password.
+#         """
+#         user = self.create_user(
+#             email,
+#             number,
+#             birthday=birthday,
+#             password=password,
+#         )
+#         user.staff = True
+#         user.admin = True
+#         user.save(using=self._db)
+#         return user
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, number=get_random_number(), birthday=None, password=None):
+    def create_user(self, email, password, birthday):
         """
         Creates and saves a User with the given email and password.
         """
         if not email:
             raise ValueError('Users must have an email address')
 
-        # if not birthday:
-        #     raise ValueError('Users must have a birthday')
-
         user = self.model(
-            number=number,
-            birthday=birthday,
+            birthday,
             email=self.normalize_email(email),
         )
 
@@ -31,35 +70,35 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_staffuser(self, email, password, birthday, number=None):
+    def create_staffuser(self, email, password, **kwargs):
         """
         Creates and saves a staff user with the given email and password.
         """
         user = self.create_user(
             email,
-            birthday,
-            number=number,
-            password=password,
+            password,
         )
         user.staff = True
         user.save(using=self._db)
-
         return user
 
-    def create_superuser(self, email, password, birthday=None, number=None):
+    def create_superuser(self, email, password, **kwargs):
         """
         Creates and saves a superuser with the given email and password.
         """
         user = self.create_user(
             email,
-            birthday=birthday,
-            number=number,
-            password=password,
+            password,
         )
         user.staff = True
         user.admin = True
         user.save(using=self._db)
         return user
+
+
+def get_random_number():
+    number = random.randrange(0, 100)
+    return number
 
 
 class User(AbstractBaseUser):
@@ -71,14 +110,15 @@ class User(AbstractBaseUser):
     active = models.BooleanField(default=True)
     staff = models.BooleanField(default=False)  # a admin user; non super-user
     admin = models.BooleanField(default=False)  # a superuser
-    birthday = models.DateField(verbose_name='birthday', blank=True, null=True)
-    number = models.IntegerField(verbose_name='number', blank=True, null=True)
+    birthday = models.DateField(verbose_name='birthday', null=True, blank=True)
+    number = models.IntegerField(verbose_name='number', default=get_random_number)
     # notice the absence of a "Password field", that's built in.
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []  # Email & Password are required by default.
+    REQUIRED_FIELDS = ['birthday']  # Email & Password are required by default.
 
     objects = UserManager()
+    # objects = BaseUseManager()
 
     def get_short_name(self):
         # The user is identified by their email address
