@@ -5,56 +5,8 @@ from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser)
 
 
-# class UserManager(BaseUserManager):
-#     def create_user(self, email, number, birthday=None, password=None):
-#         """
-#         Creates and saves a User with the given email and password.
-#         """
-#         if not email:
-#             raise ValueError('Users must have an email address')
-#
-#         user = self.model(
-#             number,
-#             birthday=birthday,
-#             email=self.normalize_email(email),
-#         )
-#
-#         user.set_password(password)
-#         user.save(using=self._db)
-#         return user
-#
-#     def create_staffuser(self, email, password, birthday, number):
-#         """
-#         Creates and saves a staff user with the given email and password.
-#         """
-#         user = self.create_user(
-#             email,
-#             birthday,
-#             number,
-#             password=password,
-#         )
-#         user.staff = True
-#         user.save(using=self._db)
-#
-#         return user
-#
-#     def create_superuser(self, email, password, number, birthday=None):
-#         """
-#         Creates and saves a superuser with the given email and password.
-#         """
-#         user = self.create_user(
-#             email,
-#             number,
-#             birthday=birthday,
-#             password=password,
-#         )
-#         user.staff = True
-#         user.admin = True
-#         user.save(using=self._db)
-#         return user
-
 class UserManager(BaseUserManager):
-    def create_user(self, email, password, birthday):
+    def create_user(self, email, password):  # ,birthday):
         """
         Creates and saves a User with the given email and password.
         """
@@ -62,7 +14,7 @@ class UserManager(BaseUserManager):
             raise ValueError('Users must have an email address')
 
         user = self.model(
-            birthday,
+            # birthday,
             email=self.normalize_email(email),
         )
 
@@ -70,25 +22,27 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_staffuser(self, email, password, **kwargs):
+    def create_staffuser(self, email, password):  # ,birthday):
         """
         Creates and saves a staff user with the given email and password.
         """
         user = self.create_user(
             email,
             password,
+            # birthday,
         )
         user.staff = True
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, password, **kwargs):
+    def create_superuser(self, email, password):  # ,birthday):
         """
         Creates and saves a superuser with the given email and password.
         """
         user = self.create_user(
             email,
             password,
+            # birthday,
         )
         user.staff = True
         user.admin = True
@@ -96,9 +50,22 @@ class UserManager(BaseUserManager):
         return user
 
 
-def get_random_number():
-    number = random.randrange(0, 100)
-    return number
+# def get_random_number():
+#     number = random.randrange(0, 100)
+#
+#     def get_bizzfuzz(number=None):
+#         if int(number) % 3 == 0 and int(number) % 5 == 0:
+#             fuzz = 'BizzFuzz'
+#         elif number % 5 == 0:
+#             fuzz = 'Bizz'
+#         elif number % 3 == 0:
+#             fuzz = 'Fuzz'
+#         else:
+#             fuzz = number
+#         return "%s" % fuzz
+#
+#     bizz = get_bizzfuzz(number)
+#     return number, bizz
 
 
 class User(AbstractBaseUser):
@@ -112,13 +79,32 @@ class User(AbstractBaseUser):
     admin = models.BooleanField(default=False)  # a superuser
     birthday = models.DateField(verbose_name='birthday', null=True, blank=True)
     number = models.IntegerField(verbose_name='number', default=get_random_number)
+    bizzfuzz = models.CharField(max_length=50, verbose_name='bizzfuzz', default=get_random_number)
     # notice the absence of a "Password field", that's built in.
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['birthday']  # Email & Password are required by default.
+    REQUIRED_FIELDS = []  # Email & Password are required by default.
 
     objects = UserManager()
+
     # objects = BaseUseManager()
+
+    def get_random_number(self):
+        number = random.randrange(0, 100)
+
+        def get_bizzfuzz(number=None):
+            if number % 3 == 0 and number % 5 == 0:
+                fuzz = 'BizzFuzz'
+            elif number % 5 == 0:
+                fuzz = 'Bizz'
+            elif number % 3 == 0:
+                fuzz = 'Fuzz'
+            else:
+                fuzz = number
+            return "%s" % fuzz
+
+        bizz = get_bizzfuzz(number)
+        return number, bizz
 
     def get_short_name(self):
         # The user is identified by their email address
