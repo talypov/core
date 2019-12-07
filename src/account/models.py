@@ -6,7 +6,7 @@ from django.contrib.auth.models import (
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, password):  # ,birthday):
+    def create_user(self, email, password):
         """
         Creates and saves a User with the given email and password.
         """
@@ -14,7 +14,6 @@ class UserManager(BaseUserManager):
             raise ValueError('Users must have an email address')
 
         user = self.model(
-            # birthday,
             email=self.normalize_email(email),
         )
 
@@ -22,27 +21,25 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_staffuser(self, email, password):  # ,birthday):
+    def create_staffuser(self, email, password):
         """
         Creates and saves a staff user with the given email and password.
         """
         user = self.create_user(
             email,
             password,
-            # birthday,
         )
         user.staff = True
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, password):  # ,birthday):
+    def create_superuser(self, email, password):
         """
         Creates and saves a superuser with the given email and password.
         """
         user = self.create_user(
             email,
             password,
-            # birthday,
         )
         user.staff = True
         user.admin = True
@@ -50,22 +47,8 @@ class UserManager(BaseUserManager):
         return user
 
 
-# def get_random_number():
-#     number = random.randrange(0, 100)
-#
-#     def get_bizzfuzz(number=None):
-#         if int(number) % 3 == 0 and int(number) % 5 == 0:
-#             fuzz = 'BizzFuzz'
-#         elif number % 5 == 0:
-#             fuzz = 'Bizz'
-#         elif number % 3 == 0:
-#             fuzz = 'Fuzz'
-#         else:
-#             fuzz = number
-#         return "%s" % fuzz
-#
-#     bizz = get_bizzfuzz(number)
-#     return number, bizz
+def get_random_number():
+    return random.randrange(1, 100)
 
 
 class User(AbstractBaseUser):
@@ -77,9 +60,8 @@ class User(AbstractBaseUser):
     active = models.BooleanField(default=True)
     staff = models.BooleanField(default=False)  # a admin user; non super-user
     admin = models.BooleanField(default=False)  # a superuser
-    birthday = models.DateField(verbose_name='birthday', null=True, blank=True)
+    birthday = models.DateField(verbose_name='birthday', null=True, blank=False)
     number = models.IntegerField(verbose_name='number', default=get_random_number)
-    bizzfuzz = models.CharField(max_length=50, verbose_name='bizzfuzz', default=get_random_number)
     # notice the absence of a "Password field", that's built in.
 
     USERNAME_FIELD = 'email'
@@ -89,22 +71,18 @@ class User(AbstractBaseUser):
 
     # objects = BaseUseManager()
 
-    def get_random_number(self):
-        number = random.randrange(0, 100)
+    @property
+    def bizzfuzz(self):
+        if self.number % 15:
+            fuzz = 'BizzFuzz'
+        elif self.number % 5 == 0:
+            fuzz = 'Bizz'
+        elif self.number % 3 == 0:
+            fuzz = 'Fuzz'
+        else:
+            fuzz = self.number
+        return "%s" % fuzz
 
-        def get_bizzfuzz(number=None):
-            if number % 3 == 0 and number % 5 == 0:
-                fuzz = 'BizzFuzz'
-            elif number % 5 == 0:
-                fuzz = 'Bizz'
-            elif number % 3 == 0:
-                fuzz = 'Fuzz'
-            else:
-                fuzz = number
-            return "%s" % fuzz
-
-        bizz = get_bizzfuzz(number)
-        return number, bizz
 
     def get_short_name(self):
         # The user is identified by their email address
