@@ -1,4 +1,5 @@
 import random
+from datetime import date
 
 from django.db import models
 from django.contrib.auth.models import (
@@ -72,8 +73,20 @@ class User(AbstractBaseUser):
     # objects = BaseUseManager()
 
     @property
+    def eligible(self):
+        # today = date.today()
+        # self.age = self.birthday - today
+        age = date.today().year - self.birthday.year
+        # age = today
+        if age > 13:
+            eligible = 'allowed'
+        else:
+            eligible = 'blocked'
+        return eligible
+
+    @property
     def bizzfuzz(self):
-        if self.number % 15:
+        if self.number % 15 == 0:
             fuzz = 'BizzFuzz'
         elif self.number % 5 == 0:
             fuzz = 'Bizz'
@@ -81,8 +94,7 @@ class User(AbstractBaseUser):
             fuzz = 'Fuzz'
         else:
             fuzz = self.number
-        return "%s" % fuzz
-
+        return fuzz
 
     def get_short_name(self):
         # The user is identified by their email address
