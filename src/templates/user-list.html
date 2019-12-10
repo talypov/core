@@ -1,0 +1,27 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+<table>
+    <tf>
+        <td> Username </td>
+        <td> Birthday </td>
+        <td> Eligible </td>
+        <td> Random Number </td>
+        <td> BizzFuzz </td>
+    </tf>
+{% for instance in object_list %}
+
+    <tr>
+        <td><p> <a href="{{ instance.get_absolute_url }}">{{ instance.email }}</a> </p></td>
+        <td><p> {{ instance.birthday}} </p></td>
+        <td><p> {{ instance.eligible}} </p></td>
+        <td><p> {{ instance.number}} </p></td>
+        <td><p> {{ instance.bizzfuzz}} </p></td>
+    </tr>
+<!--<p>{{ instance.id }} - <a href="{{ instance.get_absolute_url }}">{{ instance.email }}</a></p>-->
+
+{% endfor %}
+
+</table>
+{% endblock %}

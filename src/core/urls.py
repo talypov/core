@@ -15,7 +15,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from account.views import home_view, user_create_view, dynamic_lookup_view, user_delete_view, user_list_view,\
+    UserListView, UserSingleView, UserCreateView, UserUpdateView, UserDeleteView
 
 urlpatterns = [
+    # path('', user_list_view, name='user-list'),
+    path('', UserListView.as_view(), name='user-list'),
+    # path('user/<int:id>', dynamic_lookup_view, name='user'),
+    path('user/<int:id>', UserSingleView.as_view(), name='user'),
     path('admin/', admin.site.urls),
+    # path('create/', user_create_view),
+    path('create/', UserCreateView.as_view(), name='user-create'),
+    path('user/<int:id>/update/', UserUpdateView.as_view(), name='user-update'),
+    # path('user/<int:id>/delete/', user_delete_view, name='user-delete'),
+    path('user/<int:id>/delete/', UserDeleteView.as_view(), name='user-delete'),
 ]

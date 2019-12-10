@@ -1,0 +1,14 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+ <h1>{{ object.email }}</h1>
+<p>
+    {% if object.number != None and object.number != '' %}
+    {{ object.number }}
+    {% else %}
+        Number coming soon
+    {% endif %}
+</p>
+
+{% endblock %}
